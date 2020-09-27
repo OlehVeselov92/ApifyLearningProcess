@@ -24,7 +24,7 @@
 
 5. Construct a proxy URL that will select proxies only from the US (without specific groups).
 
-    - http://country-US:<proxyPassword>@proxy.apify.com:8000
+    - http://country-US:{process.env.APIFY_PROXY_PASSWORD}@proxy.apify.com:8000
 
 
 6. What do you need to do to rotate proxies (one proxy usually has one IP)? How does this differ for Cheerio Scraper and Puppeteer Scraper?
