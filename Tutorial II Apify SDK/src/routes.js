@@ -21,18 +21,18 @@ exports.SEARCH_PAGE = async ({ page, request }, { requestQueue }) => {
   log.debug(`List of ASINs ${asins}`);
 
   //Main step of this part - adding each product page to the requestQueue
-  await Promise.all(
-    asins.map((asin) => {
-      requestQueue.addRequest({
-        url: `https://www.amazon.com/dp/${asin}`,
-        userData: {
-          label: "ITEM_PAGE",
-          keyword: request.userData.keyword,
-          asin,
-        },
-      });
-    })
-  );
+  // FIXED PROMISE.ALL(ASINS.MAP())
+
+  for (const asin of asins) {
+    await requestQueue.addRequest({
+      url: `https://www.amazon.com/dp/${asin}`,
+      userData: {
+        label: "ITEM_PAGE",
+        keyword: request.userData.keyword,
+        asin,
+      },
+    });
+  }
 };
 
 // From here, we are going to each product's detail page and save its title, url and description
@@ -107,17 +107,4 @@ exports.OFFER_PAGE = async ({ page, request }) => {
   await Apify.pushData(output);
 
   
-  const env = await Apify.getEnv();
-  const datasetId = env.defaultDatasetId;
-
-  // CALLING ACTOR FROM STORE TO SEND AN EMAIL
-  if (datasetId !== undefined) {
-    log.info(`Sending email...`);
-    await Apify.call("apify/send-mail", {
-      to: "lukas@apify.com",
-      subject: "Oleg Veselov. This is for the Apify SDK exercise",
-      html: `https://api.apify.com/v2/datasets/${datasetId}/items`,
-    });
-    log.info("Email was sent successfully");
-  }
 };

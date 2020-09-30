@@ -21,6 +21,7 @@ Apify.main(async () => {
     await Apify.setValue("asinOffers", asinOffers);
   };
 
+  
   // FUNCTION FOR INTERVAL LOGGING
   setInterval(async () => {
     console.log(asinOffers);
@@ -28,7 +29,7 @@ Apify.main(async () => {
   }, 20000);
 
   Apify.events.on("migrating", async () => {
-    await savingDataForMigration(asinOffers); // WATCH THIS IN UTILS
+    await savingDataForMigration(asinOffers); //
   });
 
   log.info("Starting crawling");
@@ -66,9 +67,28 @@ Apify.main(async () => {
 
   await crawler.run(); // LAUNCHING CRAWLER
 
+// CALLING ACTOR FROM STORE TO SEND AN EMAIL
+
+
+log.info('sending email');
+  const env = await Apify.getEnv();
+  const datasetId = env.defaultDatasetId;
+
+  if (datasetId !== undefined) {
+    log.info(`Sending email...`);
+    await Apify.call("apify/send-mail", {
+      to: "andrey@apify.com",
+      subject: "Oleg Veselov. This is for the Apify SDK exercise",
+      html: `https://api.apify.com/v2/datasets/${datasetId}/items`,
+    });
+    log.info("Email was sent successfully");
+  }
+
+  log.info('email sent');
+
   // WEBHOOK THAT CALLS ANOTHER ACTOR
-  await Apify.addWebhook({
-    eventTypes: ["ACTOR.RUN.SUCCEEDED"],
-    requestUrl: `https://api.apify.com/v2/acts/${actorsName}/runs?token=${myToken}`,
-  });
+  // await Apify.addWebhook({
+  //   eventTypes: ["ACTOR.RUN.SUCCEEDED"],
+  //   requestUrl: `https://api.apify.com/v2/acts/${actorsName}/runs?token=${myToken}`,
+  // });
 });

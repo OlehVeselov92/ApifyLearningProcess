@@ -6,33 +6,35 @@ Apify.main(async () => {
 
   // CHECKING INPUT
   if (!input) {
-    throw new Error("iNPUT IS EMPTY");
+    throw new Error("INPUT IS EMPTY");
   }
 
   //   GETTING LIST OF PREVIOUS RESULTS (OFFER LIST)
-  const dataset = await Apify.client.datasets.getItems({datasetId: input.resource.defaultDatasetId});
+  const dataset = await Apify.client.datasets.getItems({
+    datasetId: input.resource.defaultDatasetId,
+  });
   const offers = dataset.items;
 
   //   CREATING   EMPTY ARRAYS TO PROCESS DATA
-  const iteratedItem = [];
-  const minOffersArray = [];
+  const output = {};
 
   // ITERATING EACH OFFER AND SELECTING THE CHEAPEST
   for (const offer of offers) {
-    if (!iteratedItem.includes(offer.url)) {
-      const productOffers = offers.filter(
-        (productOffer) => productOffer.url === offer.url
-      );
-      const minOffer = productOffers.reduce((accamulator, currentValue) => {
-        return currentValue.price < accamulator.price
-          ? currentValue
-          : accamulator;
-      });
-      minOffersArray.push(minOffer);
-      iteratedItem.push(offer.url);
+    const asin = offer.url.replace("https://www.amazon.com/dp/", "");
+    const price = parseFloat(offer.price.replace("$", ""));
+
+    if (!output[asin]) {
+      output[asin] = offer;
+    }
+
+    if (output[asin]) {
+      const storedPrice = parseFloat(output[asin].price.replace("$", ""));
+      if (price < storedPrice) {
+        output[asin] = offer;
+      }
     }
   }
 
   //   SAVING DATA
-  await Apify.pushData(minOffersArray);
+  await Apify.pushData(Object.values(output));
 });

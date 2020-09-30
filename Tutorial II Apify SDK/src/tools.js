@@ -8,7 +8,8 @@ exports.getSources = async () => {
     log.debug('Getting sources');
     const input = await Apify.getInput(); // GETTING INPUT (SRC: /apify_storage/key_value_stores/default/INPUT.json)
     // CHECKING INPUT
-    if (input.length === 0) {
+    // FIXED ISSUE WITH CHECK 
+    if (!input) {
         throw new Error('No input');
     }
 

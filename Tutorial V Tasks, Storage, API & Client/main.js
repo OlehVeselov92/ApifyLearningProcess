@@ -1,24 +1,21 @@
 const Apify = require("apify");
-const ApifyClient = require("apify-client");
+const apifyClient = Apify.client; 
+const TOKEN = process.env.TOKEN;
 const rp = require("request-promise"); // Lib used to make requests (old, but still works)
-const TOKEN = "******************"; //my Token; (platform - account - integrations )
 const TASK_ID = "**************"; // (platform - task - settings - id)
+
 const INPUT = {
   // INPUT FOR TASK
   foo: "bar",
   email: "olegveselov.92@gmail.com",
 };
+
 // setting logLevel
 const { log } = Apify.utils;
 log.setLevel(log.LEVELS.WARNING);
 
 // function to run task through ApifyClient
 async function taskUsingClient(memory, limit, fields) {
-  // creating my own client
-  const apifyClient = new ApifyClient({
-    userId: "****************",
-    token: TOKEN,
-  });
 
   // Runs the given task.
   const actRun = await apifyClient.tasks.runTask({
